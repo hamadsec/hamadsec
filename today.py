@@ -27,7 +27,8 @@ from lxml import etree
 HEADERS = {'authorization': 'token ' + os.environ['ACCESS_TOKEN']}
 USER_NAME = os.environ['USER_NAME']
 QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0,
-               'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0}
+               'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0,
+               'language_getter': 0}
 
 
 def daily_readme(created):
@@ -315,7 +316,7 @@ def fmt(value):
 
 
 def svg_overwrite(filename, age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, loc_data):
+                  contrib_data, follower_data, loc_data, lang_data):
     """Writes each stat into its matching element id in the SVG."""
     tree = etree.parse(filename)
     root = tree.getroot()
@@ -328,7 +329,47 @@ def svg_overwrite(filename, age_data, commit_data, star_data, repo_data,
     find_and_replace(root, 'loc_data', fmt(loc_data[2]))
     find_and_replace(root, 'loc_add', fmt(loc_data[0]))
     find_and_replace(root, 'loc_del', fmt(loc_data[1]))
+    find_and_replace(root, 'lang_data', fmt(lang_data))
     tree.write(filename, encoding='utf-8', xml_declaration=True)
+
+
+def language_getter(top_n=4, cursor=None, totals=None):
+    """
+    Aggregates bytes-per-language across owned (incl. private) repos and returns
+    a compact string of the top languages by share, e.g.
+    'Python 82% - HTML 9% - CSS 5% - Shell 4%'.
+    """
+    if totals is None:
+        totals = {}
+    query_count('language_getter')
+    query = '''
+    query ($login: String!, $cursor: String) {
+        user(login: $login) {
+            repositories(first: 100, after: $cursor, ownerAffiliations: [OWNER], isFork: false) {
+                nodes {
+                    languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
+                        edges { size node { name } }
+                    }
+                }
+                pageInfo { hasNextPage endCursor }
+            }
+        }
+    }'''
+    variables = {'login': USER_NAME, 'cursor': cursor}
+    request = simple_request(language_getter.__name__, query, variables)
+    repos = request.json()['data']['user']['repositories']
+    for node in repos['nodes']:
+        for edge in node['languages']['edges']:
+            name = edge['node']['name']
+            totals[name] = totals.get(name, 0) + edge['size']
+    if repos['pageInfo']['hasNextPage']:
+        return language_getter(top_n, repos['pageInfo']['endCursor'], totals)
+
+    grand = sum(totals.values())
+    if grand == 0:
+        return 'n/a'
+    top = sorted(totals.items(), key=lambda kv: kv[1], reverse=True)[:top_n]
+    return ' - '.join(f'{name} {round(size / grand * 100)}%' for name, size in top)
 
 
 def find_and_replace(root, element_id, new_text):
@@ -425,11 +466,13 @@ if __name__ == '__main__':
     contrib_data, contrib_time = perf_counter(
         graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
+    lang_data, lang_time = perf_counter(language_getter)
+    formatter('languages', lang_time)
 
     svg_overwrite('dark_mode.svg', age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, total_loc[:-1])
+                  contrib_data, follower_data, total_loc[:-1], lang_data)
     svg_overwrite('light_mode.svg', age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, total_loc[:-1])
+                  contrib_data, follower_data, total_loc[:-1], lang_data)
 
     print('Total GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
     for funct_name, count in QUERY_COUNT.items():

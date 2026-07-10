@@ -6,6 +6,14 @@
   <img alt="hamadsec — GitHub stats" src="./light_mode.svg" width="820">
 </picture>
 
+<br><br>
+
+[![Springer CCIS 2026](https://img.shields.io/badge/Springer_CCIS-Published_2026-0b7285?style=for-the-badge)](https://doi.org/10.1007/978-3-032-13342-7_14)
+[![CEH Practical](https://img.shields.io/badge/CEH-Practical-2f9e44?style=for-the-badge)](#certifications)
+[![eJPTv2](https://img.shields.io/badge/eJPT-v2-c92a2a?style=for-the-badge)](#certifications)
+[![INE ICCA](https://img.shields.io/badge/INE-ICCA-1971c2?style=for-the-badge)](#certifications)
+[![AppSec @ Holvi](https://img.shields.io/badge/AppSec-%40_Holvi-343a40?style=for-the-badge)](https://holvi.com)
+
 </div>
 
 # Muhammad Hamad
