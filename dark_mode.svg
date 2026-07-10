@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='utf-8'?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1033" height="662" viewBox="0 0 1033 662" role="img" aria-label="hamadsec profile card">
   <style>
     text { font-family:'SFMono-Regular','Consolas','Liberation Mono','DejaVu Sans Mono',monospace; font-size:13px; }
@@ -16,10 +16,10 @@
   <line x1="602" y1="105" x2="993" y2="105" stroke="#30363d" stroke-width="1"/>
   <text x="473" y="137" class="orange">Uptime:</text>
   <line x1="572" y1="133" x2="663" y2="133" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="137"><tspan class="val" id="age_data">11 years, 7 months, 9 days</tspan></text>
+  <text x="673" y="137"><tspan class="val" id="age_data">? years, ? months, ? days</tspan></text>
   <text x="473" y="159" class="orange">Host:</text>
   <line x1="546" y1="155" x2="663" y2="155" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="159"><tspan class="val">Holvi · Helsinki, FI</tspan></text>
+  <text x="673" y="159"><tspan class="val">Holvi &#183; Helsinki, FI</tspan></text>
   <text x="473" y="181" class="orange">Role:</text>
   <line x1="546" y1="177" x2="663" y2="177" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="181"><tspan class="val">Application Security Engineer</tspan></text>
@@ -27,14 +27,14 @@
   <line x1="611" y1="199" x2="663" y2="199" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="203"><tspan class="val">MSc Data Science, Aalto + KTH</tspan></text>
   <text x="473" y="235" class="orange">Languages.Code:</text>
-  <text x="673" y="235"><tspan class="val" id="lang_data">Java 72% - Jupyter Notebook 10% - VBA 5% - C++ 5%</tspan></text>
+  <text x="673" y="235"><tspan class="val">Python &amp; Bash</tspan></text>
   <text x="473" y="257" class="orange">Languages.Real:</text>
   <text x="673" y="257"><tspan class="val">Urdu, English</tspan></text>
   <text x="473" y="289" class="orange">Focus.Security:</text>
-  <text x="673" y="289"><tspan class="val">AppSec · GenAI security &amp; eval</tspan></text>
+  <text x="673" y="289"><tspan class="val">AppSec &#183; GenAI security &amp; eval</tspan></text>
   <text x="473" y="311" class="orange">Focus.Practice:</text>
-  <text x="673" y="311"><tspan class="val">secure-SDLC · OWASP · STRIDE</tspan></text>
-  <text x="473" y="341" class="orange" font-weight="700">— Contact</text>
+  <text x="673" y="311"><tspan class="val">secure-SDLC &#183; OWASP &#183; STRIDE</tspan></text>
+  <text x="473" y="341" class="orange" font-weight="700">&#8212; Contact</text>
   <line x1="602" y1="337" x2="993" y2="337" stroke="#30363d" stroke-width="1"/>
   <text x="473" y="365" class="orange">Email:</text>
   <line x1="559" y1="361" x2="663" y2="361" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
@@ -48,20 +48,20 @@
   <text x="473" y="431" class="orange">Fiverr:</text>
   <line x1="572" y1="427" x2="663" y2="427" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="431"><tspan class="val">fiverr.com/i_hamad</tspan></text>
-  <text x="473" y="461" class="orange" font-weight="700">— GitHub Stats</text>
+  <text x="473" y="461" class="orange" font-weight="700">&#8212; GitHub Stats</text>
   <line x1="667" y1="457" x2="993" y2="457" stroke="#30363d" stroke-width="1"/>
   <text x="473" y="485" class="orange">Repos:</text>
   <line x1="559" y1="481" x2="663" y2="481" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="485"><tspan class="val" id="repo_data">13</tspan><tspan class="dim">  {Contributed: </tspan><tspan class="val" id="contrib_data">14</tspan><tspan class="dim">}</tspan></text>
+  <text x="673" y="485"><tspan class="val" id="repo_data">?</tspan><tspan class="dim">  {Contributed: </tspan><tspan class="val" id="contrib_data">?</tspan><tspan class="dim">}</tspan></text>
   <text x="473" y="507" class="orange">Commits:</text>
   <line x1="585" y1="503" x2="663" y2="503" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="507"><tspan class="val" id="commit_data">71</tspan></text>
+  <text x="673" y="507"><tspan class="val" id="commit_data">?</tspan></text>
   <text x="473" y="529" class="orange">Stars:</text>
   <line x1="559" y1="525" x2="663" y2="525" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="529"><tspan class="val" id="star_data">3</tspan></text>
+  <text x="673" y="529"><tspan class="val" id="star_data">?</tspan></text>
   <text x="473" y="551" class="orange">Followers:</text>
   <line x1="611" y1="547" x2="663" y2="547" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="551"><tspan class="val" id="follower_data">3</tspan></text>
+  <text x="673" y="551"><tspan class="val" id="follower_data">?</tspan></text>
   <text x="473" y="573" class="orange">Lines of Code:</text>
-  <text x="673" y="573"><tspan class="val" id="loc_data">240,026</tspan><tspan class="dim">  (</tspan><tspan class="add" id="loc_add">242,731</tspan><tspan class="dim">++, </tspan><tspan class="del" id="loc_del">2,705</tspan><tspan class="dim">--)</tspan></text>
+  <text x="673" y="573"><tspan class="val" id="loc_data">?</tspan><tspan class="dim">  (</tspan><tspan class="add" id="loc_add">?</tspan><tspan class="dim">++, </tspan><tspan class="del" id="loc_del">?</tspan><tspan class="dim">--)</tspan></text>
 </svg>
