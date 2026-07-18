@@ -16,7 +16,7 @@
   <line x1="602" y1="105" x2="993" y2="105" stroke="#d0d7de" stroke-width="1"/>
   <text x="473" y="137" class="orange">Uptime:</text>
   <line x1="572" y1="133" x2="663" y2="133" stroke="#afb8c1" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="137"><tspan class="val" id="age_data">11 years, 7 months, 17 days</tspan></text>
+  <text x="673" y="137"><tspan class="val" id="age_data">11 years, 7 months, 18 days</tspan></text>
   <text x="473" y="159" class="orange">Host:</text>
   <line x1="546" y1="155" x2="663" y2="155" stroke="#afb8c1" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="159"><tspan class="val">Holvi · Helsinki, FI</tspan></text>
