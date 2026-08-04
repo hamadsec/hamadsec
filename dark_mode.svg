@@ -55,7 +55,7 @@
   <text x="673" y="485"><tspan class="val" id="repo_data">16</tspan><tspan class="dim">  {Contributed: </tspan><tspan class="val" id="contrib_data">17</tspan><tspan class="dim">}</tspan></text>
   <text x="473" y="507" class="orange">Commits:</text>
   <line x1="585" y1="503" x2="663" y2="503" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="507"><tspan class="val" id="commit_data">144</tspan></text>
+  <text x="673" y="507"><tspan class="val" id="commit_data">145</tspan></text>
   <text x="473" y="529" class="orange">Stars:</text>
   <line x1="559" y1="525" x2="663" y2="525" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="529"><tspan class="val" id="star_data">3</tspan></text>
