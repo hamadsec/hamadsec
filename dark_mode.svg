@@ -16,7 +16,7 @@
   <line x1="602" y1="105" x2="993" y2="105" stroke="#30363d" stroke-width="1"/>
   <text x="473" y="137" class="orange">Uptime:</text>
   <line x1="572" y1="133" x2="663" y2="133" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="137"><tspan class="val" id="age_data">11 years, 8 months, 13 days</tspan></text>
+  <text x="673" y="137"><tspan class="val" id="age_data">11 years, 8 months, 14 days</tspan></text>
   <text x="473" y="159" class="orange">Host:</text>
   <line x1="546" y1="155" x2="663" y2="155" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="159"><tspan class="val">Holvi · Helsinki, FI</tspan></text>
@@ -55,7 +55,7 @@
   <text x="673" y="485"><tspan class="val" id="repo_data">14</tspan><tspan class="dim">  {Contributed: </tspan><tspan class="val" id="contrib_data">15</tspan><tspan class="dim">}</tspan></text>
   <text x="473" y="507" class="orange">Commits:</text>
   <line x1="585" y1="503" x2="663" y2="503" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="507"><tspan class="val" id="commit_data">534</tspan></text>
+  <text x="673" y="507"><tspan class="val" id="commit_data">537</tspan></text>
   <text x="473" y="529" class="orange">Stars:</text>
   <line x1="559" y1="525" x2="663" y2="525" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="529"><tspan class="val" id="star_data">3</tspan></text>
@@ -63,5 +63,5 @@
   <line x1="611" y1="547" x2="663" y2="547" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
   <text x="673" y="551"><tspan class="val" id="follower_data">4</tspan></text>
   <text x="473" y="573" class="orange">Lines of Code:</text>
-  <text x="673" y="573"><tspan class="val" id="loc_data">293,093</tspan><tspan class="dim">  (</tspan><tspan class="add" id="loc_add">587,751</tspan><tspan class="dim">++, </tspan><tspan class="del" id="loc_del">294,658</tspan><tspan class="dim">--)</tspan></text>
+  <text x="673" y="573"><tspan class="val" id="loc_data">293,239</tspan><tspan class="dim">  (</tspan><tspan class="add" id="loc_add">587,912</tspan><tspan class="dim">++, </tspan><tspan class="del" id="loc_del">294,673</tspan><tspan class="dim">--)</tspan></text>
 </svg>
