@@ -27,8 +27,13 @@ from lxml import etree
 HEADERS = {'authorization': 'token ' + os.environ['ACCESS_TOKEN']}
 USER_NAME = os.environ['USER_NAME']
 QUERY_COUNT = {'user_getter': 0, 'follower_getter': 0, 'graph_repos_stars': 0,
-               'recursive_loc': 0, 'graph_commits': 0, 'loc_query': 0,
+               'recursive_loc': 0, 'contributions_getter': 0, 'loc_query': 0,
                'language_getter': 0}
+
+# Repos the API listed but would not hand over (see skip_hidden). Counted so a
+# permissions regression shows up as a warning instead of silently shrinking
+# the numbers.
+HIDDEN_REPOS = 0
 
 
 def daily_readme(created):
@@ -60,23 +65,118 @@ def simple_request(func_name, query, variables):
                     request.text, QUERY_COUNT)
 
 
-def graph_commits(start_date, end_date):
-    """Returns total commit contributions in a date range."""
-    query_count('graph_commits')
+def skip_hidden(edges):
+    """
+    Filters out repository edges GitHub returned as null.
+
+    A repo the token cannot read still occupies an edge in the connection (and
+    still counts toward totalCount) but arrives as {"node": null}. That is what
+    a private repo looks like once ACCESS_TOKEN loses `repo` scope. Dropping the
+    edge keeps the run alive; HIDDEN_REPOS makes the loss visible afterwards.
+    """
+    global HIDDEN_REPOS
+    kept = []
+    for edge in edges:
+        if edge is None or edge.get('node') is None:
+            HIDDEN_REPOS += 1
+        else:
+            kept.append(edge)
+    return kept
+
+
+def iso(moment):
+    """Formats a naive UTC datetime the way the GraphQL DateTime scalar wants."""
+    return moment.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def contributions_getter(start_date, end_date):
+    """
+    Returns the contributionsCollection for a window of at most one year:
+    commit / PR / issue / review counts plus the day-by-day calendar.
+
+    `restrictedContributionsCount` is the private-repo share, which is only
+    populated when the token may read those repos — so it moves in lockstep
+    with the null-node problem skip_hidden() reports on.
+    """
+    query_count('contributions_getter')
     query = '''
     query($start_date: DateTime!, $end_date: DateTime!, $login: String!) {
         user(login: $login) {
             contributionsCollection(from: $start_date, to: $end_date) {
+                totalCommitContributions
+                restrictedContributionsCount
+                totalPullRequestContributions
+                totalIssueContributions
+                totalPullRequestReviewContributions
                 contributionCalendar {
                     totalContributions
+                    weeks {
+                        contributionDays {
+                            date
+                            contributionCount
+                        }
+                    }
                 }
             }
         }
     }'''
     variables = {'start_date': start_date, 'end_date': end_date, 'login': USER_NAME}
-    request = simple_request(graph_commits.__name__, query, variables)
-    return int(request.json()['data']['user']['contributionsCollection']
-               ['contributionCalendar']['totalContributions'])
+    request = simple_request(contributions_getter.__name__, query, variables)
+    return request.json()['data']['user']['contributionsCollection']
+
+
+def contribution_history(created):
+    """
+    Walks the account year by year (the collection window caps at 12 months) and
+    returns (days, this_year), where `days` maps 'YYYY-MM-DD' -> contribution
+    count over the account's whole life and `this_year` is the current calendar
+    year's collection.
+    """
+    days = {}
+    this_year = None
+    now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+    for year in range(created.year, now.year + 1):
+        start = max(created, datetime.datetime(year, 1, 1))
+        end = min(now, datetime.datetime(year, 12, 31, 23, 59, 59))
+        if start >= end:
+            continue
+        collection = contributions_getter(iso(start), iso(end))
+        for week in collection['contributionCalendar']['weeks']:
+            for day in week['contributionDays']:
+                days[day['date']] = max(days.get(day['date'], 0),
+                                        day['contributionCount'])
+        if year == now.year:
+            this_year = collection
+    return days, this_year
+
+
+def streak_counter(days):
+    """
+    Returns (current, longest) contribution streaks in days.
+
+    An empty *today* does not break the current streak — the day is still in
+    progress, and counting it as a break would make the number flicker to 0
+    every midnight UTC.
+    """
+    active = sorted(date for date, count in days.items() if count > 0)
+    if not active:
+        return 0, 0
+
+    longest = run = 1
+    for index in range(1, len(active)):
+        gap = (datetime.date.fromisoformat(active[index])
+               - datetime.date.fromisoformat(active[index - 1])).days
+        run = run + 1 if gap == 1 else 1
+        longest = max(longest, run)
+
+    day = datetime.date.today()
+    if days.get(day.isoformat(), 0) == 0:
+        day -= datetime.timedelta(days=1)
+    current = 0
+    while days.get(day.isoformat(), 0) > 0:
+        current += 1
+        day -= datetime.timedelta(days=1)
+    return current, longest
 
 
 def graph_repos_stars(count_type, owner_affiliation, cursor=None):
@@ -223,11 +323,14 @@ def loc_query(owner_affiliation, comment_size=0, force_cache=False, cursor=None,
     variables = {'owner_affiliation': owner_affiliation, 'login': USER_NAME, 'cursor': cursor}
     request = simple_request(loc_query.__name__, query, variables)
     page = request.json()['data']['user']['repositories']
+    # Same null-node hazard as stars_counter, and worse here: cache_builder
+    # indexes the cache file positionally against these edges.
+    page_edges = skip_hidden(page['edges'])
     if page['pageInfo']['hasNextPage']:
-        edges += page['edges']
+        edges += page_edges
         return loc_query(owner_affiliation, comment_size, force_cache,
                          page['pageInfo']['endCursor'], edges)
-    return cache_builder(edges + page['edges'], comment_size, force_cache)
+    return cache_builder(edges + page_edges, comment_size, force_cache)
 
 
 def cache_builder(edges, comment_size, force_cache, loc_add=0, loc_del=0):
@@ -303,7 +406,7 @@ def force_close_file(data, cache_comment):
 def stars_counter(data):
     """Counts total stars across the given repositories."""
     total_stars = 0
-    for node in data:
+    for node in skip_hidden(data):
         total_stars += node['node']['stargazers']['totalCount']
     return total_stars
 
@@ -315,29 +418,26 @@ def fmt(value):
     return str(value)
 
 
-def svg_overwrite(filename, age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, loc_data, lang_data):
-    """Writes each stat into its matching element id in the SVG."""
+def svg_overwrite(filename, stats):
+    """Writes each stat into the SVG element carrying the matching id."""
     tree = etree.parse(filename)
     root = tree.getroot()
-    find_and_replace(root, 'age_data', fmt(age_data))
-    find_and_replace(root, 'commit_data', fmt(commit_data))
-    find_and_replace(root, 'star_data', fmt(star_data))
-    find_and_replace(root, 'repo_data', fmt(repo_data))
-    find_and_replace(root, 'contrib_data', fmt(contrib_data))
-    find_and_replace(root, 'follower_data', fmt(follower_data))
-    find_and_replace(root, 'loc_data', fmt(loc_data[2]))
-    find_and_replace(root, 'loc_add', fmt(loc_data[0]))
-    find_and_replace(root, 'loc_del', fmt(loc_data[1]))
-    find_and_replace(root, 'lang_data', fmt(lang_data))
+    for element_id, value in stats.items():
+        find_and_replace(root, element_id, fmt(value))
     tree.write(filename, encoding='utf-8', xml_declaration=True)
 
 
-def language_getter(top_n=4, cursor=None, totals=None):
+def language_getter(top_n=3, cursor=None, totals=None):
     """
     Aggregates bytes-per-language across owned (incl. private) repos and returns
     a compact string of the top languages by share, e.g.
-    'Python 82% - HTML 9% - CSS 5% - Shell 4%'.
+    'Python 82% - HTML 9% - CSS 5%'.
+
+    top_n is 3 because the card's value column fits ~44 monospace characters
+    before it runs into the right edge.
+
+    Archived repos are excluded. With them in, a 2019 Java coursework project
+    outweighed everything current and the card read 'Java 54%'.
     """
     if totals is None:
         totals = {}
@@ -345,7 +445,7 @@ def language_getter(top_n=4, cursor=None, totals=None):
     query = '''
     query ($login: String!, $cursor: String) {
         user(login: $login) {
-            repositories(first: 100, after: $cursor, ownerAffiliations: [OWNER], isFork: false) {
+            repositories(first: 100, after: $cursor, ownerAffiliations: [OWNER], isFork: false, isArchived: false) {
                 nodes {
                     languages(first: 10, orderBy: {field: SIZE, direction: DESC}) {
                         edges { size node { name } }
@@ -359,6 +459,8 @@ def language_getter(top_n=4, cursor=None, totals=None):
     request = simple_request(language_getter.__name__, query, variables)
     repos = request.json()['data']['user']['repositories']
     for node in repos['nodes']:
+        if node is None:  # unreadable repo — see skip_hidden()
+            continue
         for edge in node['languages']['edges']:
             name = edge['node']['name']
             totals[name] = totals.get(name, 0) + edge['size']
@@ -373,10 +475,18 @@ def language_getter(top_n=4, cursor=None, totals=None):
 
 
 def find_and_replace(root, element_id, new_text):
-    """Finds the element by id and replaces its text."""
+    """
+    Finds the element by id and replaces its text.
+
+    A missing id used to pass silently, which is how `lang_data` was computed on
+    every run and then thrown away for want of a slot in the SVG. Say so instead.
+    """
     element = root.find(f".//*[@id='{element_id}']")
-    if element is not None:
-        element.text = new_text
+    if element is None:
+        print(f'::warning::no SVG element with id={element_id!r} — '
+              f'the value {new_text!r} was computed and discarded')
+        return
+    element.text = new_text
 
 
 def commit_counter(comment_size):
@@ -466,14 +576,51 @@ if __name__ == '__main__':
     contrib_data, contrib_time = perf_counter(
         graph_repos_stars, 'repos', ['OWNER', 'COLLABORATOR', 'ORGANIZATION_MEMBER'])
     follower_data, follower_time = perf_counter(follower_getter, USER_NAME)
-    lang_data, lang_time = perf_counter(language_getter)
-    formatter('languages', lang_time)
 
-    svg_overwrite('dark_mode.svg', age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, total_loc[:-1], lang_data)
-    svg_overwrite('light_mode.svg', age_data, commit_data, star_data, repo_data,
-                  contrib_data, follower_data, total_loc[:-1], lang_data)
+    # language_getter() is deliberately NOT called: the card's Languages.Code
+    # line is hand-written, because the computed mix is dominated by whichever
+    # side project is largest rather than by what the work actually is. The
+    # function stays for whenever that line should go live.
+
+    (days, this_year), hist_time = perf_counter(contribution_history, created)
+    formatter('contributions', hist_time)
+    current_streak, longest_streak = streak_counter(days)
+
+    # Commits made this calendar year, private repos included. The restricted
+    # count is only non-zero while the token may read them.
+    commits_year = (this_year['totalCommitContributions']
+                    + this_year['restrictedContributionsCount']) if this_year else 0
+
+    year_days = {date: count for date, count in days.items()
+                 if date.startswith(str(datetime.date.today().year))}
+    active_days = sum(1 for count in year_days.values() if count > 0)
+    best_day = max(year_days.values()) if year_days else 0
+
+    stats = {
+        'age_data': age_data,
+        'commit_data': commit_data,
+        'commit_year': commits_year,
+        'star_data': star_data,
+        'repo_data': repo_data,
+        'contrib_data': contrib_data,
+        'follower_data': follower_data,
+        'loc_data': total_loc[2],
+        'loc_add': total_loc[0],
+        'loc_del': total_loc[1],
+        'active_days': active_days,
+        'best_day': best_day,
+        'streak_data': f'{current_streak} day{format_plural(current_streak)}',
+        'streak_best': f'{longest_streak} day{format_plural(longest_streak)}',
+    }
+    svg_overwrite('dark_mode.svg', stats)
+    svg_overwrite('light_mode.svg', stats)
 
     print('Total GitHub GraphQL API calls:', '{:>3}'.format(sum(QUERY_COUNT.values())))
     for funct_name, count in QUERY_COUNT.items():
         print('{:<28}'.format('   ' + funct_name + ':'), '{:>6}'.format(count))
+
+    if HIDDEN_REPOS:
+        print(f'::warning::{HIDDEN_REPOS} repository node(s) came back null, so '
+              'their stars, commits and lines of code are missing from this card. '
+              'That is what a private repo looks like when ACCESS_TOKEN has lost '
+              '`repo` scope — check the token.')
