@@ -61,7 +61,7 @@
   <text x="673" y="529"><tspan class="val" id="star_data">0</tspan></text>
   <text x="473" y="551" class="orange">Followers:</text>
   <line x1="611" y1="547" x2="663" y2="547" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="551"><tspan class="val" id="follower_data">5</tspan></text>
+  <text x="673" y="551"><tspan class="val" id="follower_data">4</tspan></text>
   <text x="473" y="573" class="orange">Lines of Code:</text>
   <text x="673" y="573"><tspan class="val" id="loc_data">368,219</tspan><tspan class="dim">  (</tspan><tspan class="add" id="loc_add">672,111</tspan><tspan class="dim">++, </tspan><tspan class="del" id="loc_del">303,892</tspan><tspan class="dim">--)</tspan></text>
   <text x="473" y="595" class="orange">Activity:</text>
