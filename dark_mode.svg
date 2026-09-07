@@ -69,5 +69,5 @@
   <text x="673" y="595"><tspan class="val" id="active_days">37</tspan><tspan class="dim"> active days this year  {Best: </tspan><tspan class="val" id="best_day">58</tspan><tspan class="dim">}</tspan></text>
   <text x="473" y="617" class="orange">Streak:</text>
   <line x1="572" y1="613" x2="663" y2="613" stroke="#30363d" stroke-width="1.4" stroke-dasharray="1.5 4" stroke-linecap="round"/>
-  <text x="673" y="617"><tspan class="val" id="streak_data">21 days</tspan><tspan class="dim">  {Longest: </tspan><tspan class="val" id="streak_best">21 days</tspan><tspan class="dim">}</tspan></text>
+  <text x="673" y="617"><tspan class="val" id="streak_data">0 days</tspan><tspan class="dim">  {Longest: </tspan><tspan class="val" id="streak_best">21 days</tspan><tspan class="dim">}</tspan></text>
 </svg>
